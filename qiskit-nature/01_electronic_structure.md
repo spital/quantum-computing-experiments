@@ -1,0 +1,190 @@
+# Electronic structure
+
+## Introduction 
+
+The molecular Hamiltonian is 
+
+$$
+\mathcal{H} = - \sum_I \frac{\nabla_{R_I}^2}{M_I} - \sum_i \frac{\nabla_{r_i}^2}{m_e} - \sum_I\sum_i  \frac{Z_I e^2}{|R_I-r_i|} + \sum_i \sum_{j>i} \frac{e^2}{|r_i-r_j|} + \sum_I\sum_{J>I} \frac{Z_I Z_J e^2}{|R_I-R_J|}
+$$
+
+Because the nuclei are much heavier than the electrons they do not move on the same time scale and therefore, the behavior of nuclei and electrons can be decoupled. This is the Born-Oppenheimer approximation.
+
+Therefore, one can first tackle the electronic problem with nuclear coordinate entering only as parameters. The energy levels of the electrons in the molecule can be found by solving the non-relativistic time independent Schroedinger equation,
+
+$$
+\mathcal{H}_{\text{el}} |\Psi_{n}\rangle = E_{n} |\Psi_{n}\rangle
+$$
+
+where 
+
+$$
+\mathcal{H}_{\text{el}} = - \sum_i \frac{\nabla_{r_i}^2}{m_e} - \sum_I\sum_i  \frac{Z_I e^2}{|R_I-r_i|} + \sum_i \sum_{j>i} \frac{e^2}{|r_i-r_j|}.
+$$
+
+In particular the ground state energy is given by:
+$$
+E_0 = \frac{\langle \Psi_0 | H_{\text{el}} | \Psi_0 \rangle}{\langle \Psi_0 | \Psi_0 \rangle}
+$$
+where $\Psi_0$ is the ground state of the system. 
+
+However, the dimensionality of this problem grows exponentially with the number of degrees of freedom. To tackle this issue we would like to prepare $\Psi_0$ on a quantum computer and measure the Hamiltonian expectation value (or $E_0$) directly. 
+
+So how do we do that concretely? 
+
+
+## The Hartree-Fock initial state 
+
+A good starting point for solving this problem is the Hartree-Fock (HF) method. This method approximates a N-body problem into N one-body problems where each electron evolves in the mean-field of the others. Classically solving the HF equations is efficient and leads to the exact exchange energy but does not include any electron correlation. Therefore, it is usually a good starting point to start adding correlation. 
+
+The Hamiltonian can then be re-expressed in the basis of the solutions of the HF method, also called Molecular Orbitals (MOs):
+
+$$
+\hat{H}_{elec}=\sum_{pq} h_{pq} \hat{a}^{\dagger}_p \hat{a}_q + 
+\frac{1}{2} \sum_{pqrs} h_{pqrs}  \hat{a}^{\dagger}_p \hat{a}^{\dagger}_q \hat{a}_r  \hat{a}_s
+$$
+with the 1-body integrals
+$$
+h_{pq} = \int \phi^*_p(r) \left( -\frac{1}{2} \nabla^2 - \sum_{I} \frac{Z_I}{R_I- r} \right)   \phi_q(r)dr
+$$
+and 2-body integrals
+$$
+h_{pqrs} = \int \frac{\phi^*_p(r_1)  \phi^*_q(r_2) \phi_r(r_2)  \phi_s(r_1)}{|r_1-r_2|}dr_1dr_2.
+$$
+
+The MOs ($\phi_u$) can be occupied or virtual (unoccupied). One MO can contain 2 electrons. However, in what follows we actually work with Spin Orbitals which are associated with a spin up ($\alpha$) of spin down ($\beta$) electron. Thus Spin Orbitals can contain one electron or be unoccupied. 
+
+We now show how to concretely realise these steps with Qiskit.
+
+Qiskit is interfaced with different classical codes which are able to find the HF solutions. Interfacing between Qiskit and the following codes is already available:
+
+* Gaussian
+* Psi4
+* PyQuante
+* PySCF
+
+In the following we set up a PySCF driver, for the hydrogen molecule at equilibrium bond length (0.735 angstrom) in the singlet state and with no charge. 
+
+
+```python
+from qiskit_nature.second_q.drivers import UnitsType, Molecule
+from qiskit_nature.second_q.drivers import (
+    ElectronicStructureDriverType,
+    ElectronicStructureMoleculeDriver,
+)
+
+molecule = Molecule(
+    geometry=[["H", [0.0, 0.0, 0.0]], ["H", [0.0, 0.0, 0.735]]], charge=0, multiplicity=1
+)
+driver = ElectronicStructureMoleculeDriver(
+    molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF
+)
+```
+
+For further information about the drivers see https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.html
+
+## The mapping from fermions to qubits 
+
+<img src="aux_files/jw_mapping.png" width="500">
+
+The Hamiltonian given in the previous section is expressed in terms of fermionic operators. To encode the problem into the state of a quantum computer, these operators must be mapped to spin operators (indeed the qubits follow spin statistics). 
+
+There exist different mapping types with different properties. Qiskit already supports the following mappings:
+
+* Jordan-Wigner (Zeitschrift für Physik, 47, 631-651 (1928))
+* Parity (The Journal of chemical physics, 137(22), 224109 (2012))
+* Bravyi-Kitaev (Annals of Physics, 298(1), 210-226 (2002))
+
+The Jordan-Wigner mapping is particularly interesting as it maps each Spin Orbital to a qubit (as shown on the Figure above). 
+
+Here we set up the Electronic Structure Problem to generate the Second quantized operator and a qubit converter that will map it to a qubit operator.
+
+
+```python
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
+```
+
+
+```python
+es_problem = ElectronicStructureProblem(driver)
+second_q_op = es_problem.second_q_ops()
+print(second_q_op[0])
+```
+
+    Fermionic Operator
+    register length=4, number terms=36
+      -1.2563390730032498 * ( +_0 -_0 )
+    + -0.47189600728114245 * ( +_1 -_1 )
+    + -1.2563390730032498 * ( +_2 -_2 )
+    + -0.47189600728114245 * ( +_3 -_3 )
+    + -0.33785507740175813 * ( +_0 +_0 -_0 -_0 )
+    + -0. ...
+
+
+    /usr/local/lib/python3.8/dist-packages/qiskit_nature/second_q/problems/electronic_structure_problem.py:97: ListAuxOpsDeprecationWarning: List-based `aux_operators` are deprecated as of version 0.3.0 and support for them will be removed no sooner than 3 months after the release. Instead, use dict-based `aux_operators`. You can switch to the dict-based interface immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`.
+      second_quantized_ops = self._grouped_property_transformed.second_q_ops()
+
+
+If we now transform this Hamiltonian for the given driver defined above we get our qubit operator:
+
+
+```python
+qubit_converter = QubitConverter(mapper=JordanWignerMapper())
+qubit_op = qubit_converter.convert(second_q_op[0])
+print(qubit_op)
+```
+
+    -0.8105479805373279 * IIII
+    + 0.1721839326191554 * IIIZ
+    - 0.22575349222402372 * IIZI
+    + 0.17218393261915543 * IZII
+    - 0.2257534922240237 * ZIII
+    + 0.12091263261776627 * IIZZ
+    + 0.16892753870087907 * IZIZ
+    + 0.045232799946057826 * YYYY
+    + 0.045232799946057826 * XXYY
+    + 0.045232799946057826 * YYXX
+    + 0.045232799946057826 * XXXX
+    + 0.1661454325638241 * ZIIZ
+    + 0.1661454325638241 * IZZI
+    + 0.17464343068300453 * ZIZI
+    + 0.12091263261776627 * ZZII
+
+
+In the minimal (STO-3G) basis set 4 qubits are required. We can reduce the number of qubits by using the Parity mapping, which allows for the removal of 2 qubits by exploiting known symmetries arising from the mapping. 
+
+
+```python
+qubit_converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=True)
+qubit_op = qubit_converter.convert(second_q_op[0], num_particles=es_problem.num_particles)
+print(qubit_op)
+```
+
+    -1.0523732457728594 * II
+    + 0.39793742484317784 * IZ
+    - 0.3979374248431793 * ZI
+    - 0.011280104256233686 * ZZ
+    + 0.18093119978423117 * XX
+
+
+This time only 2 qubits are needed. 
+
+Now that the Hamiltonian is ready, it can be used in a quantum algorithm to find information about the electronic structure of the corresponding molecule. Check out our tutorials on Ground State Calculation and Excited States Calculation to learn more about how to do that in Qiskit!
+
+
+```python
+import qiskit.tools.jupyter
+
+%qiskit_version_table
+%qiskit_copyright
+```
+
+
+<h3>Version Information</h3><table><tr><th>Qiskit Software</th><th>Version</th></tr><tr><td><code>qiskit-terra</code></td><td>0.21.1</td></tr><tr><td><code>qiskit-aer</code></td><td>0.10.4</td></tr><tr><td><code>qiskit-ibmq-provider</code></td><td>0.19.2</td></tr><tr><td><code>qiskit-nature</code></td><td>0.5.0</td></tr><tr><td><code>qiskit-finance</code></td><td>0.4.0</td></tr><tr><td><code>qiskit-optimization</code></td><td>0.4.0</td></tr><tr><td><code>qiskit-machine-learning</code></td><td>0.5.0</td></tr><tr><th>System information</th></tr><tr><td>Python version</td><td>3.8.10</td></tr><tr><td>Python compiler</td><td>GCC 9.4.0</td></tr><tr><td>Python build</td><td>default, Jun 22 2022 20:18:18</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td>CPUs</td><td>12</td></tr><tr><td>Memory (Gb)</td><td>31.267112731933594</td></tr><tr><td colspan='2'>Sat Jul 30 15:17:43 2022 CEST</td></tr></table>
+
+
+
+<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of Qiskit</h3><p>&copy; Copyright IBM 2017, 2022.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div>
+
