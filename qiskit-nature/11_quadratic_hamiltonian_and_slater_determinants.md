@@ -1,6 +1,7 @@
 # Quadratic Hamiltonians and Slater determinants
 
 A quadratic Hamiltonian is a Hamiltonian of the form
+
 $$
     H =
     \sum_{j, k} M_{jk} a^\dagger_j a_k
@@ -8,7 +9,9 @@ $$
         (\Delta_{jk} a^\dagger_j a^\dagger_k + \Delta^*_{jk} a_k a_j)
     + \text{constant}
 $$
+
 where $M$ is a Hermitian matrix ($M^\dagger = M$) and $\Delta$ is an antisymmetric matrix ($\Delta^T = -\Delta$), and the $\{a_j^\dagger\}$ are fermionic creation operators which satisfy the anticommutation relations
+
 $$
     \begin{align}
         a_j a_k + a_k a_j &= 0 \\
@@ -93,13 +96,16 @@ print(hamiltonian_ferm)
 
 ## Diagonalization and state preparation
 A quadratic Hamiltonian can always be rewritten in the form
+
 $$
     H = \sum_{j} \varepsilon_j b^\dagger_j b_j + \text{constant}
 $$
+
 where $\varepsilon_0 \leq \varepsilon_1 \leq \cdots \leq \varepsilon_N$ are non-negative real numbers called orbitals energies and
 the $\{b_j^\dagger\}$ are a new set of fermionic creation operators
 that also satisfy the canonical anticommutation relations.
 These new creation operators are linear combinations of the original creation and annihilation operators:
+
 $$
     \begin{pmatrix}
     b^\dagger_1 \\
@@ -116,6 +122,7 @@ $$
     a_N
     \end{pmatrix},
 $$
+
 where $W$ is an $N \times 2N$ matrix. Given a basis of eigenvectors of the Hamiltonian, each eigenvector is labeled by a subset of $\{0, \ldots, N - 1\}$, which we call the occupied orbitals. The corresponding eigenvalue is the sum of the corresponding values of $\varepsilon_j$, plus the constant.
 
 
@@ -184,6 +191,7 @@ np.testing.assert_allclose(hamiltonian_jw @ state, eig * state, atol=1e-8)
 ## Slater determinants
 
 When the antisymmetric part $\Delta = 0$, then the Hamiltonian conserves the number of particles. In this case, the basis change only needs to mix creation operators, not annihilation operators:
+
 $$
     \begin{pmatrix}
     b^\dagger_1 \\
@@ -197,6 +205,7 @@ $$
     a^\dagger_N \\
     \end{pmatrix},
 $$
+
 where now $W$ is an $N \times N$ matrix. Furthermore, the orbital energies $\{\varepsilon_j\}$ are allowed to be negative.
 
 

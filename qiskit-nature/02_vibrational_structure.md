@@ -22,15 +22,17 @@ However, their applicability is limited to small molecules with up to about 10 a
 To tackle the scaling problem we would like to use quantum algorithms.
 
 The nuclear Schroedinger equation is
+
 $$
 \mathcal{H}_{\text{vib}} |\Psi_{n}\rangle = E_{n} |\Psi_{n}\rangle
 $$
 
 The so-called Watson Hamiltonian (neglecting vibro-rotational coupling terms) is
+
 $$
-  \mathcal{H}_\text{vib}(Q_1, \ldots, Q_L) 
-    = - \frac{1}{2} \sum_{l=1}^{L} \frac{\partial^2}{\partial Q_l^2} + V(Q_1, \ldots, Q_L)
+  \mathcal{H}_\text{vib}(Q_1, \ldots, Q_L) = - \frac{1}{2} \sum_{l=1}^{L} \frac{\partial^2}{\partial Q_l^2} + V(Q_1, \ldots, Q_L)
 $$
+
 where $Q_l$ are the harmonic mass-weighted normal coordinates.
 
 $\mathcal{H}_\text{vib}$ must be mapped to an operator that acts on the states of a given set of $N_q$ qubits in order to calculate its eigenfunctions on quantum hardware.
@@ -38,8 +40,7 @@ In electronic structure calculations, the mapping is achieved by expressing the 
 To encode the vibrational Hamiltonian in an analogous second quantization operators, we expand the potential $V(Q_1, \ldots, Q_L)$ with the $n$-body expansion as follows:
 
 $$
-  V(Q_1, \ldots, Q_L) = V_0 + \sum_{l=1}^L V^{[l]}(Q_l) 
-    + \sum_{l<m}^L V^{[l,m]}(Q_l, Q_m) + \sum_{l<m<n}^L V^{[l,m,n]}(Q_l, Q_m, Q_n) + \ldots
+  V(Q_1, \ldots, Q_L) = V_0 + \sum_{l=1}^L V^{[l]}(Q_l) + \sum_{l<m}^L V^{[l,m]}(Q_l, Q_m) + \sum_{l<m<n}^L V^{[l,m,n]}(Q_l, Q_m, Q_n) + \ldots
 $$
 
 where $V_0$ is the electronic energy of the reference geometry, the one-mode term $V^{[l]}(Q_l)$ represents the variation of the PES upon change of the $l$-th normal coordinate from the equilibrium position.
@@ -115,21 +116,27 @@ Reference: Ollitrault, Pauline J., et al., arXiv:2003.12578 (2020).
 Compute the electronic potential
 
 Solving the ESE for different nuclear configurations to obtain the PES function $V(Q_1, \ldots, Q_L)$. So far Qiskit gives the possibility to approximate the PES with a quartic force field. 
+
 $$
 V(Q_1, \ldots, Q_L) = \frac{1}{2}  \sum_{ij} k_{ij} Q_i Q_j
                   + \frac{1}{6}  \sum_{ijk} k_{ijk} Q_i Q_j Q_k
                   + \frac{1}{16} \sum_{ijkl} k_{ijkl} Q_i Q_j Q_k Q_l
 $$
+
 The advantage of such form for the PES is that the anharmonic force fields ($k_{ij}$, $k_{ijk}$, $k_{ijkl}$) can be calculated by finite-difference approaches. For methods for which the nuclear energy Hessian can be calculated analytically with response theory-based methods (such as HF and DFT), the quartic force field can be calculated by semi-numerical differentiation as:
+
 $$
 k_{ijk} = \frac{H_{ij}(+\delta Q_k) - H_{ij}(-\delta Q_k)}{2\delta Q_k}
 $$
+
 and
+
 $$
 k_{ijkl} = \frac{H_{ij}(+\delta Q_k+\delta Q_l) - H_{ij}(+\delta Q_k-\delta Q_l)
                     -H_{ij}(-\delta Q_k+\delta Q_l) + H_{ij}(-\delta Q_k+\delta Q_l)}
                     {4\delta Q_k \delta Q_l}
 $$
+
 Such numerical procedure is implemented, for instance, in the Gaussian suite of programs.
 
 In practice this can be done with Qiskit using the GaussianForceDriver. 

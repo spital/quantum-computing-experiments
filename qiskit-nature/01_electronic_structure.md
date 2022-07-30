@@ -23,9 +23,11 @@ $$
 $$
 
 In particular the ground state energy is given by:
+
 $$
 E_0 = \frac{\langle \Psi_0 | H_{\text{el}} | \Psi_0 \rangle}{\langle \Psi_0 | \Psi_0 \rangle}
 $$
+
 where $\Psi_0$ is the ground state of the system. 
 
 However, the dimensionality of this problem grows exponentially with the number of degrees of freedom. To tackle this issue we would like to prepare $\Psi_0$ on a quantum computer and measure the Hamiltonian expectation value (or $E_0$) directly. 
@@ -43,11 +45,15 @@ $$
 \hat{H}_{elec}=\sum_{pq} h_{pq} \hat{a}^{\dagger}_p \hat{a}_q + 
 \frac{1}{2} \sum_{pqrs} h_{pqrs}  \hat{a}^{\dagger}_p \hat{a}^{\dagger}_q \hat{a}_r  \hat{a}_s
 $$
+
 with the 1-body integrals
 $$
+
 h_{pq} = \int \phi^*_p(r) \left( -\frac{1}{2} \nabla^2 - \sum_{I} \frac{Z_I}{R_I- r} \right)   \phi_q(r)dr
 $$
+
 and 2-body integrals
+
 $$
 h_{pqrs} = \int \frac{\phi^*_p(r_1)  \phi^*_q(r_2) \phi_r(r_2)  \phi_s(r_1)}{|r_1-r_2|}dr_1dr_2.
 $$
