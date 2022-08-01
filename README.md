@@ -8,10 +8,11 @@ because I thought that better was learning by trying ;)
 For easy viewing without install and for the test of the new [Github's Math support in markdown](https://github.blog/2022-05-19-math-support-in-markdown/)
 I prepared some jupyter notebooks markdown conversions.
 Check directories below:
- - [qiskit-finance](./qiskit-finance)
- - [qiskit-machine-learning](./qiskit-machine-learning)
- - [qiskit-nature](./qiskit-nature)
- - [qiskit-optimization](./qiskit-optimization)
+ - [qiskit-finance](./qiskit-finance) - [original repository](https://github.com/Qiskit/qiskit-finance)
+ - [qiskit-machine-learning](./qiskit-machine-learning) - [original repository](https://github.com/Qiskit/qiskit-machine-learning)
+ - [qiskit-nature](./qiskit-nature) - [original repository](https://github.com/Qiskit/qiskit-nature)
+ - [qiskit-optimization](./qiskit-optimization) - [original repository](https://github.com/Qiskit/qiskit-optimization)
+ - [qiskit-textbook](./qiskit-textbook) - [original repository](https://github.com/qiskit-community/qiskit-textbook)
 
 
 ## Quckstart
