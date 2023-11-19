@@ -1,5 +1,18 @@
 # Quantum Computing Experiments Intro
 
+## 2023 update
+
+2023/11: [Quantum Explorers 2023](https://challenges.quantum-computing.ibm.com/quantum-explorers-23 "ibm quantum") proud to say - completed with flying colors (so far), Supreme Observer badge will launch on November 28, 2023!
+[Quantum Explorers Theme Music Video](https://www.youtube.com/watch?v=PRES40tWp7c "youtube 3min")
+
+Starting on November 29, 2023, Qiskit Documentation and Qiskit educational resources will live on IBM Quantum Platform and will be removed from Qiskit.org
+
+2023/11: Qiskit 0.45 release https://twitter.com/qiskit/status/1721592588774293664
+
+2023/06: For the first time, IBM is making a 127-qubit quantum computer [available publicly over IBM Cloud](https://www.linkedin.com/posts/ibm-quantum_access-a-127-qubit-quantum-computer-over-activity-7075110040386314240-V3nP "linkedIn post").
+
+## 2022
+
 I recently discovered [IBM Quantum 2022 Updated Development Roadmap](https://www.youtube.com/watch?v=0ka20qanWzI) and was amazed of the recent developments and new possibilities.
 
 I did not waste the time reading Quantum computer programming for dummies [published via Los Alamos National Laboratory LANL news](https://discover.lanl.gov/news/0614-quantum-computer)
